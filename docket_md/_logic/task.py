@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import os
 
-from ..config import DIRECTORIES, DOCKET_DIR, resolve_project
+from .. import config as _cfg
+from ..config import DIRECTORIES, resolve_project
 from ..files import (
     find_task_file,
     list_all_tasks,
@@ -205,7 +206,7 @@ def task_archive(project_id: str, task_id: str, reason: str | None = None) -> st
         f"{task.content}\n\n**Archived:** {reason}".strip() if reason else task.content
     )
     archive_path = safe_path(
-        project_root, DOCKET_DIR, DIRECTORIES["ARCHIVE"], os.path.basename(fp)
+        project_root, _cfg.DOCKET_DIR, DIRECTORIES["ARCHIVE"], os.path.basename(fp)
     )
     write_markdown(archive_path, fm, content)
     os.unlink(fp)

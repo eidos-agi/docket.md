@@ -10,8 +10,15 @@ from typing import Any
 
 import yaml
 
-from .config import DOCKET_DIR, DIRECTORIES
+from . import config as _cfg
+from .config import DIRECTORIES
 from .security import safe_path
+
+
+def _docket_dir() -> str:
+    """Dereference DOCKET_DIR at call time so monkey-patches (e.g. eidos-cli
+    pointing docket-md at .eidos/docket/) take effect after import."""
+    return _cfg.DOCKET_DIR
 
 
 # ── Types ─────────────────────────────────────────────────────────────────────
@@ -137,7 +144,7 @@ def _slugify(title: str, max_len: int = 50) -> str:
 
 def _task_dir(project_root: str, completed: bool = False) -> str:
     subdir = DIRECTORIES["COMPLETED"] if completed else DIRECTORIES["TASKS"]
-    return safe_path(project_root, DOCKET_DIR, subdir)
+    return safe_path(project_root, _cfg.DOCKET_DIR, subdir)
 
 
 def list_tasks(project_root: str, include_completed: bool = False) -> list[ParsedFile]:
@@ -160,7 +167,7 @@ def list_tasks(project_root: str, include_completed: bool = False) -> list[Parse
 
 def list_all_tasks(project_root: str) -> list[ParsedFile]:
     results = list_tasks(project_root, include_completed=True)
-    archive_dir = safe_path(project_root, DOCKET_DIR, DIRECTORIES["ARCHIVE"])
+    archive_dir = safe_path(project_root, _cfg.DOCKET_DIR, DIRECTORIES["ARCHIVE"])
     if os.path.exists(archive_dir):
         for f in sorted(os.listdir(archive_dir)):
             if f.endswith(".md"):
@@ -176,7 +183,7 @@ def next_task_id(project_root: str) -> str:
         t.frontmatter["id"] for t in list_tasks(project_root, include_completed=True)
     ]
     # Also check archive
-    archive_dir = safe_path(project_root, DOCKET_DIR, DIRECTORIES["ARCHIVE"])
+    archive_dir = safe_path(project_root, _cfg.DOCKET_DIR, DIRECTORIES["ARCHIVE"])
     if os.path.exists(archive_dir):
         for f in sorted(os.listdir(archive_dir)):
             if f.endswith(".md"):
@@ -191,14 +198,14 @@ def next_task_id(project_root: str) -> str:
 def task_path(project_root: str, id: str, title: str, completed: bool = False) -> str:
     slug = _slugify(title)
     subdir = DIRECTORIES["COMPLETED"] if completed else DIRECTORIES["TASKS"]
-    return safe_path(project_root, DOCKET_DIR, subdir, f"{id} - {slug}.md")
+    return safe_path(project_root, _cfg.DOCKET_DIR, subdir, f"{id} - {slug}.md")
 
 
 def find_task_file(project_root: str, id: str) -> str | None:
     dirs = [
-        safe_path(project_root, DOCKET_DIR, DIRECTORIES["TASKS"]),
-        safe_path(project_root, DOCKET_DIR, DIRECTORIES["COMPLETED"]),
-        safe_path(project_root, DOCKET_DIR, DIRECTORIES["ARCHIVE"]),
+        safe_path(project_root, _cfg.DOCKET_DIR, DIRECTORIES["TASKS"]),
+        safe_path(project_root, _cfg.DOCKET_DIR, DIRECTORIES["COMPLETED"]),
+        safe_path(project_root, _cfg.DOCKET_DIR, DIRECTORIES["ARCHIVE"]),
     ]
     for d in dirs:
         if not os.path.exists(d):
@@ -213,7 +220,7 @@ def find_task_file(project_root: str, id: str) -> str | None:
 
 
 def _milestone_dir(project_root: str) -> str:
-    return safe_path(project_root, DOCKET_DIR, DIRECTORIES["MILESTONES"])
+    return safe_path(project_root, _cfg.DOCKET_DIR, DIRECTORIES["MILESTONES"])
 
 
 def list_milestones(project_root: str) -> list[ParsedFile]:
@@ -235,7 +242,7 @@ def next_milestone_id(project_root: str) -> str:
 def milestone_path(project_root: str, id: str, title: str) -> str:
     slug = _slugify(title)
     return safe_path(
-        project_root, DOCKET_DIR, DIRECTORIES["MILESTONES"], f"{id} - {slug}.md"
+        project_root, _cfg.DOCKET_DIR, DIRECTORIES["MILESTONES"], f"{id} - {slug}.md"
     )
 
 
@@ -253,7 +260,7 @@ def find_milestone_file(project_root: str, id: str) -> str | None:
 
 
 def _document_dir(project_root: str) -> str:
-    return safe_path(project_root, DOCKET_DIR, DIRECTORIES["DOCUMENTS"])
+    return safe_path(project_root, _cfg.DOCKET_DIR, DIRECTORIES["DOCUMENTS"])
 
 
 def list_documents(project_root: str) -> list[ParsedFile]:
@@ -275,7 +282,7 @@ def next_document_id(project_root: str) -> str:
 def document_path(project_root: str, id: str, title: str) -> str:
     slug = _slugify(title)
     return safe_path(
-        project_root, DOCKET_DIR, DIRECTORIES["DOCUMENTS"], f"{id} - {slug}.md"
+        project_root, _cfg.DOCKET_DIR, DIRECTORIES["DOCUMENTS"], f"{id} - {slug}.md"
     )
 
 
@@ -293,7 +300,7 @@ def find_document_file(project_root: str, id: str) -> str | None:
 
 
 def _graph_dir(project_root: str) -> str:
-    return safe_path(project_root, DOCKET_DIR, DIRECTORIES["GRAPH"])
+    return safe_path(project_root, _cfg.DOCKET_DIR, DIRECTORIES["GRAPH"])
 
 
 def _slugify_node_id(node_id: str) -> str:
@@ -305,7 +312,7 @@ def _slugify_node_id(node_id: str) -> str:
 def graph_node_path(project_root: str, node_id: str) -> str:
     return safe_path(
         project_root,
-        DOCKET_DIR,
+        _cfg.DOCKET_DIR,
         DIRECTORIES["GRAPH"],
         f"{_slugify_node_id(node_id)}.yaml",
     )
@@ -375,7 +382,7 @@ def find_graph_node_file(project_root: str, node_id: str) -> str | None:
 
 
 def _plan_dir(project_root: str) -> str:
-    d = safe_path(project_root, DOCKET_DIR, DIRECTORIES["PLANS"])
+    d = safe_path(project_root, _cfg.DOCKET_DIR, DIRECTORIES["PLANS"])
     os.makedirs(d, exist_ok=True)
     return d
 
@@ -399,7 +406,7 @@ def next_plan_id(project_root: str) -> str:
 def plan_path(project_root: str, id: str, title: str) -> str:
     slug = _slugify(title)
     return safe_path(
-        project_root, DOCKET_DIR, DIRECTORIES["PLANS"], f"{id} - {slug}.md"
+        project_root, _cfg.DOCKET_DIR, DIRECTORIES["PLANS"], f"{id} - {slug}.md"
     )
 
 
@@ -418,7 +425,7 @@ def find_plan_file(project_root: str, id: str) -> str | None:
 
 def load_sessions(project_root: str) -> dict:
     """Read .docket/sessions.json. Return {"sessions": []} if missing."""
-    path = safe_path(project_root, DOCKET_DIR, "sessions.json")
+    path = safe_path(project_root, _cfg.DOCKET_DIR, "sessions.json")
     if not os.path.exists(path):
         return {"sessions": []}
     with open(path) as f:
@@ -427,9 +434,9 @@ def load_sessions(project_root: str) -> dict:
 
 def save_sessions(project_root: str, data: dict) -> None:
     """Atomic write (tmp + os.replace) to .docket/sessions.json."""
-    docket_dir = safe_path(project_root, DOCKET_DIR)
+    docket_dir = safe_path(project_root, _cfg.DOCKET_DIR)
     os.makedirs(docket_dir, exist_ok=True)
-    target = safe_path(project_root, DOCKET_DIR, "sessions.json")
+    target = safe_path(project_root, _cfg.DOCKET_DIR, "sessions.json")
     fd, tmp_path = tempfile.mkstemp(dir=docket_dir, suffix=".tmp")
     try:
         with os.fdopen(fd, "w") as f:

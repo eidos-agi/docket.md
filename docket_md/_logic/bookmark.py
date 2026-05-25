@@ -5,7 +5,8 @@ from __future__ import annotations
 import os
 from datetime import datetime
 
-from ..config import DOCKET_DIR, load_config, resolve_project
+from .. import config as _cfg
+from ..config import load_config, resolve_project
 from ..hier_config import resolved_settings
 
 
@@ -19,7 +20,7 @@ def bookmark(project_id: str, note: str) -> str:
     config = load_config(project_root)
     project_name = config.project if config else "unknown"
 
-    docket_dir = os.path.join(project_root, DOCKET_DIR)
+    docket_dir = os.path.join(project_root, _cfg.DOCKET_DIR)
     bookmarks_file = os.path.join(docket_dir, "bookmarks.md")
     timestamp = datetime.now().isoformat()
     entry = f"\n## {timestamp}\n\n{note}\n"
