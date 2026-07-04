@@ -4,7 +4,6 @@ import json
 import os
 import tempfile
 
-import pytest
 
 from docket_md.daemon import (
     _extract_title,
@@ -18,7 +17,10 @@ from docket_md.daemon import (
 
 # ── Fixtures ─────────────────────────────────────────────────────────────────
 
-def _make_approval_entry(plan: str = "# My Plan\n\nDo the thing.", session_id: str = "abc-123"):
+
+def _make_approval_entry(
+    plan: str = "# My Plan\n\nDo the thing.", session_id: str = "abc-123"
+):
     """Build a realistic plan-approval JSONL dict."""
     return {
         "type": "user",
@@ -43,17 +45,21 @@ def _make_docket_project(tmpdir: str, project_name: str = "test-project") -> str
     docket_dir = os.path.join(tmpdir, ".docket")
     os.makedirs(os.path.join(docket_dir, "plans"), exist_ok=True)
     with open(os.path.join(docket_dir, "docket.json"), "w") as f:
-        json.dump({
-            "id": "test-guid-1234",
-            "version": "0.1.0",
-            "project": project_name,
-            "created": "2026-01-01",
-            "docket_path": ".docket",
-        }, f)
+        json.dump(
+            {
+                "id": "test-guid-1234",
+                "version": "0.1.0",
+                "project": project_name,
+                "created": "2026-01-01",
+                "docket_path": ".docket",
+            },
+            f,
+        )
     return tmpdir
 
 
 # ── Detection tests ──────────────────────────────────────────────────────────
+
 
 def test_is_plan_approval_match():
     entry = _make_approval_entry()
@@ -81,9 +87,7 @@ def test_is_plan_approval_no_match_no_approved_text():
     entry = {
         "type": "user",
         "message": {
-            "content": [
-                {"type": "tool_result", "content": "Some other tool result"}
-            ]
+            "content": [{"type": "tool_result", "content": "Some other tool result"}]
         },
         "toolUseResult": {
             "plan": "# A Plan",
@@ -95,6 +99,7 @@ def test_is_plan_approval_no_match_no_approved_text():
 
 
 # ── Title extraction tests ───────────────────────────────────────────────────
+
 
 def test_extract_title_heading():
     assert _extract_title("# Deploy the Widget\n\nSteps here.") == "Deploy the Widget"
@@ -110,6 +115,7 @@ def test_extract_title_later_heading():
 
 
 # ── Ingestion tests ──────────────────────────────────────────────────────────
+
 
 def test_ingest_plan():
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -151,6 +157,7 @@ def test_deduplication():
 
 # ── Install tests ────────────────────────────────────────────────────────────
 
+
 def test_install_creates_hook(tmp_path, monkeypatch):
     """install() creates settings.json with the SessionStart hook."""
     settings_file = str(tmp_path / "settings.json")
@@ -177,13 +184,17 @@ def test_install_merges_existing(tmp_path, monkeypatch):
             "SessionStart": [
                 {
                     "matcher": "",
-                    "hooks": [{"type": "command", "command": "echo hello", "timeout": 5}],
+                    "hooks": [
+                        {"type": "command", "command": "echo hello", "timeout": 5}
+                    ],
                 }
             ],
             "PostToolUse": [
                 {
                     "matcher": "",
-                    "hooks": [{"type": "command", "command": "echo post", "timeout": 5}],
+                    "hooks": [
+                        {"type": "command", "command": "echo post", "timeout": 5}
+                    ],
                 }
             ],
         }
@@ -209,6 +220,7 @@ def test_install_merges_existing(tmp_path, monkeypatch):
 
 
 # ── Queue processing tests ───────────────────────────────────────────────────
+
 
 def test_process_queue(tmp_path, monkeypatch):
     """process_queue() picks up watch_session jobs and adds watches."""
@@ -280,6 +292,7 @@ def test_process_queue_skips_non_docket(tmp_path, monkeypatch):
 
 
 # ── Watch tests ──────────────────────────────────────────────────────────────
+
 
 def test_watch_detects_approval(tmp_path, monkeypatch):
     """watch_files() detects a plan approval appended after the offset watermark."""

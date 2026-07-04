@@ -1,8 +1,5 @@
 """Tests for plan entity type (files + tools)."""
 
-import os
-import pytest
-
 from docket_md.config import init_project, register_project
 from docket_md.files import (
     list_plans,
@@ -25,6 +22,7 @@ from docket_md._logic.plan import (
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _setup_project(tmp_path) -> tuple[str, str]:
     """Init + register a temp project, return (project_root, project_id)."""
     project_root = str(tmp_path)
@@ -37,6 +35,7 @@ def _setup_project(tmp_path) -> tuple[str, str]:
 # TestPlanFiles
 # ---------------------------------------------------------------------------
 
+
 class TestPlanFiles:
     def test_next_plan_id_empty(self, tmp_path):
         project_root, _ = _setup_project(tmp_path)
@@ -46,14 +45,37 @@ class TestPlanFiles:
         project_root, _ = _setup_project(tmp_path)
         # Write two plans manually
         fp1 = plan_path(project_root, "PLAN-0001", "First plan")
-        write_markdown(fp1, {"id": "PLAN-0001", "title": "First plan", "status": "draft", "created": "2026-03-25"}, "")
+        write_markdown(
+            fp1,
+            {
+                "id": "PLAN-0001",
+                "title": "First plan",
+                "status": "draft",
+                "created": "2026-03-25",
+            },
+            "",
+        )
         fp2 = plan_path(project_root, "PLAN-0002", "Second plan")
-        write_markdown(fp2, {"id": "PLAN-0002", "title": "Second plan", "status": "draft", "created": "2026-03-25"}, "")
+        write_markdown(
+            fp2,
+            {
+                "id": "PLAN-0002",
+                "title": "Second plan",
+                "status": "draft",
+                "created": "2026-03-25",
+            },
+            "",
+        )
         assert next_plan_id(project_root) == "PLAN-0003"
 
     def test_plan_roundtrip(self, tmp_path):
         project_root, _ = _setup_project(tmp_path)
-        fm = {"id": "PLAN-0001", "title": "Test Plan", "status": "draft", "created": "2026-03-25"}
+        fm = {
+            "id": "PLAN-0001",
+            "title": "Test Plan",
+            "status": "draft",
+            "created": "2026-03-25",
+        }
         content = "This is the plan body."
         fp = plan_path(project_root, "PLAN-0001", "Test Plan")
         write_markdown(fp, fm, content)
@@ -65,7 +87,16 @@ class TestPlanFiles:
     def test_find_plan_file(self, tmp_path):
         project_root, _ = _setup_project(tmp_path)
         fp = plan_path(project_root, "PLAN-0001", "My Plan")
-        write_markdown(fp, {"id": "PLAN-0001", "title": "My Plan", "status": "draft", "created": "2026-03-25"}, "")
+        write_markdown(
+            fp,
+            {
+                "id": "PLAN-0001",
+                "title": "My Plan",
+                "status": "draft",
+                "created": "2026-03-25",
+            },
+            "",
+        )
         found = find_plan_file(project_root, "PLAN-0001")
         assert found is not None
         assert "PLAN-0001" in found
@@ -80,9 +111,27 @@ class TestPlanFiles:
         assert list_plans(project_root) == []
         # Add two plans
         fp1 = plan_path(project_root, "PLAN-0001", "Alpha")
-        write_markdown(fp1, {"id": "PLAN-0001", "title": "Alpha", "status": "draft", "created": "2026-03-25"}, "")
+        write_markdown(
+            fp1,
+            {
+                "id": "PLAN-0001",
+                "title": "Alpha",
+                "status": "draft",
+                "created": "2026-03-25",
+            },
+            "",
+        )
         fp2 = plan_path(project_root, "PLAN-0002", "Beta")
-        write_markdown(fp2, {"id": "PLAN-0002", "title": "Beta", "status": "approved", "created": "2026-03-25"}, "")
+        write_markdown(
+            fp2,
+            {
+                "id": "PLAN-0002",
+                "title": "Beta",
+                "status": "approved",
+                "created": "2026-03-25",
+            },
+            "",
+        )
         plans = list_plans(project_root)
         assert len(plans) == 2
         assert plans[0].frontmatter["id"] == "PLAN-0001"
@@ -93,10 +142,13 @@ class TestPlanFiles:
 # TestPlanTools
 # ---------------------------------------------------------------------------
 
+
 class TestPlanTools:
     def test_plan_create(self, tmp_path):
         _, pid = _setup_project(tmp_path)
-        result = plan_create(pid, "Launch Strategy", content="We will launch in Q2.", tags=["strategy"])
+        result = plan_create(
+            pid, "Launch Strategy", content="We will launch in Q2.", tags=["strategy"]
+        )
         assert "PLAN-0001" in result
         assert "Launch Strategy" in result
         # Verify file exists
@@ -120,7 +172,12 @@ class TestPlanTools:
 
     def test_plan_view(self, tmp_path):
         _, pid = _setup_project(tmp_path)
-        plan_create(pid, "Detailed Plan", content="Full details here.", verification=["Check A", "Check B"])
+        plan_create(
+            pid,
+            "Detailed Plan",
+            content="Full details here.",
+            verification=["Check A", "Check B"],
+        )
         result = plan_view(pid, "PLAN-0001")
         assert "Detailed Plan" in result
         assert "Full details here." in result

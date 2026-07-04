@@ -1,8 +1,6 @@
 """Tests for hierarchical config resolution."""
 
-import json
 import os
-import pytest
 from unittest.mock import patch
 
 from docket_md.hier_config import (
@@ -15,13 +13,13 @@ from docket_md.hier_config import (
     set_value,
     find_setting_origin,
     get_config_tree,
-    DOCKET_CONFIG_ROOT,
 )
 
 
 # ---------------------------------------------------------------------------
 # deep_merge
 # ---------------------------------------------------------------------------
+
 
 class TestDeepMerge:
     def test_simple_override(self):
@@ -57,26 +55,40 @@ class TestDeepMerge:
 # parse_git_remote
 # ---------------------------------------------------------------------------
 
+
 class TestParseGitRemote:
     def test_ssh(self):
-        assert parse_git_remote("git@github.com:aic-holdings/ciso.git") == ("aic-holdings", "ciso")
+        assert parse_git_remote("git@github.com:aic-holdings/ciso.git") == (
+            "aic-holdings",
+            "ciso",
+        )
 
     def test_https_with_git(self):
-        assert parse_git_remote("https://github.com/aic-holdings/ciso.git") == ("aic-holdings", "ciso")
+        assert parse_git_remote("https://github.com/aic-holdings/ciso.git") == (
+            "aic-holdings",
+            "ciso",
+        )
 
     def test_https_without_git(self):
-        assert parse_git_remote("https://github.com/aic-holdings/ciso") == ("aic-holdings", "ciso")
+        assert parse_git_remote("https://github.com/aic-holdings/ciso") == (
+            "aic-holdings",
+            "ciso",
+        )
 
     def test_invalid(self):
         assert parse_git_remote("not-a-url") is None
 
     def test_gitlab_ssh(self):
-        assert parse_git_remote("git@gitlab.com:myorg/myrepo.git") == ("myorg", "myrepo")
+        assert parse_git_remote("git@gitlab.com:myorg/myrepo.git") == (
+            "myorg",
+            "myrepo",
+        )
 
 
 # ---------------------------------------------------------------------------
 # Settings I/O
 # ---------------------------------------------------------------------------
+
 
 class TestSettingsIO:
     def test_read_missing(self, tmp_path):
@@ -97,6 +109,7 @@ class TestSettingsIO:
 # ---------------------------------------------------------------------------
 # Config chain resolution
 # ---------------------------------------------------------------------------
+
 
 class TestResolveConfigChain:
     def test_full_chain(self, tmp_path, monkeypatch):
@@ -121,7 +134,10 @@ class TestResolveConfigChain:
         proj_dir = os.path.join(repo_dir, "projects", "uuid-123")
         write_settings(os.path.join(proj_dir, "settings.json"), proj_s)
 
-        with patch("docket_md.hier_config.detect_org_repo", return_value=("testorg", "testrepo")):
+        with patch(
+            "docket_md.hier_config.detect_org_repo",
+            return_value=("testorg", "testrepo"),
+        ):
             chain = resolve_config_chain("/fake/path", project_id="uuid-123")
 
         assert len(chain) == 4
@@ -131,7 +147,10 @@ class TestResolveConfigChain:
         assert chain[3][0] == "project"
 
         # Verify merged settings
-        with patch("docket_md.hier_config.detect_org_repo", return_value=("testorg", "testrepo")):
+        with patch(
+            "docket_md.hier_config.detect_org_repo",
+            return_value=("testorg", "testrepo"),
+        ):
             merged = resolved_settings("/fake/path", project_id="uuid-123")
 
         assert merged["theme"] == "dark"
@@ -147,7 +166,9 @@ class TestResolveConfigChain:
         os.makedirs(config_root, exist_ok=True)
         write_settings(os.path.join(config_root, "settings.json"), {"theme": "light"})
 
-        with patch("docket_md.hier_config.detect_org_repo", return_value=("myorg", "myrepo")):
+        with patch(
+            "docket_md.hier_config.detect_org_repo", return_value=("myorg", "myrepo")
+        ):
             merged = resolved_settings("/fake/path", project_id="uuid-456")
 
         assert merged == {"theme": "light"}
@@ -171,12 +192,15 @@ class TestResolveConfigChain:
 # set_value
 # ---------------------------------------------------------------------------
 
+
 class TestSetValue:
     def test_set_dotted_key(self, tmp_path, monkeypatch):
         config_root = str(tmp_path / "config" / "docket")
         monkeypatch.setattr("docket_md.hier_config.DOCKET_CONFIG_ROOT", config_root)
 
-        with patch("docket_md.hier_config.detect_org_repo", return_value=("org1", "repo1")):
+        with patch(
+            "docket_md.hier_config.detect_org_repo", return_value=("org1", "repo1")
+        ):
             sp = set_value("/fake", "wrike.enabled", True, level="org")
 
         data = read_settings(sp)
@@ -195,18 +219,25 @@ class TestSetValue:
 # find_setting_origin
 # ---------------------------------------------------------------------------
 
+
 class TestFindSettingOrigin:
     def test_finds_deepest_level(self, tmp_path, monkeypatch):
         config_root = str(tmp_path / "config" / "docket")
         monkeypatch.setattr("docket_md.hier_config.DOCKET_CONFIG_ROOT", config_root)
 
         os.makedirs(config_root, exist_ok=True)
-        write_settings(os.path.join(config_root, "settings.json"), {"wrike": {"enabled": True}})
+        write_settings(
+            os.path.join(config_root, "settings.json"), {"wrike": {"enabled": True}}
+        )
 
         org_dir = os.path.join(config_root, "orgs", "org1")
-        write_settings(os.path.join(org_dir, "settings.json"), {"wrike": {"enabled": False}})
+        write_settings(
+            os.path.join(org_dir, "settings.json"), {"wrike": {"enabled": False}}
+        )
 
-        with patch("docket_md.hier_config.detect_org_repo", return_value=("org1", "repo1")):
+        with patch(
+            "docket_md.hier_config.detect_org_repo", return_value=("org1", "repo1")
+        ):
             result = find_setting_origin("wrike.enabled", "/fake", project_id="uuid-1")
 
         assert result == ("org", False)
@@ -226,9 +257,12 @@ class TestFindSettingOrigin:
 # get_config_tree
 # ---------------------------------------------------------------------------
 
+
 class TestGetConfigTree:
     def test_empty(self, tmp_path, monkeypatch):
-        monkeypatch.setattr("docket_md.hier_config.DOCKET_CONFIG_ROOT", str(tmp_path / "empty"))
+        monkeypatch.setattr(
+            "docket_md.hier_config.DOCKET_CONFIG_ROOT", str(tmp_path / "empty")
+        )
         assert get_config_tree() == {}
 
     def test_populated(self, tmp_path, monkeypatch):

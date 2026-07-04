@@ -1,7 +1,6 @@
 """Tests for the optional Wrdocket hook."""
 
-import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from docket_md.hooks.wrike_hook import WrikeHook, get_hook
 
@@ -84,7 +83,9 @@ class TestOnComplete:
         hook = WrikeHook("test-token")
 
         mock_resp = MagicMock()
-        mock_resp.json.return_value = {"data": [{"id": "TASK123", "status": "Completed"}]}
+        mock_resp.json.return_value = {
+            "data": [{"id": "TASK123", "status": "Completed"}]
+        }
         mock_resp.raise_for_status = MagicMock()
         hook._http = MagicMock()
         hook._http.put.return_value = mock_resp

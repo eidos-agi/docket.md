@@ -244,9 +244,7 @@ def graph_traverse(
         if src_id == node_id:
             lines.append(f"\n**CONNECTED ({len(src_edges)}):**")
         else:
-            lines.append(
-                f"\n**from `{src_id}` ({src_node.get('title', '?')}):**"
-            )
+            lines.append(f"\n**from `{src_id}` ({src_node.get('title', '?')}):**")
         indent = "  " * (src_depth + 1)
         for edge in src_edges:
             _format_edge(src_id, edge, indent)

@@ -1,9 +1,7 @@
 """Tests for session management helpers."""
 
-import json
 import os
 
-import pytest
 
 from docket_md.files import (
     load_sessions,
