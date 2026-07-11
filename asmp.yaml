@@ -1,0 +1,50 @@
+asmp: "0.1"
+kind: service
+name: docket-md
+description: >
+  The execution forge — tasks, milestones, documents, Definition of Done.
+  Third leg of the Trilogy (research → governor → docket). Formerly
+  codenamed ike (ike-md).
+version: 0.4.1
+created_by: agent://grok/software-engineer
+owner: eidos-agi
+section: tools
+
+aliases:
+  - ike
+  - ike-md
+  - ike.md
+  - docket
+  - docket.md
+
+runtime:
+  style: mcp
+  exec: docket-md
+  mcp: docket-md
+
+capabilities:
+  provides:
+    - execution.forge
+    - task.docket
+    - milestone.track
+    - trilogy.execute
+  requires:
+    - governor-md
+  supports:
+    - research-md
+    - telos-md
+
+infra:
+  repo: ~/repos-eidos-agi/docket.md
+  github: https://github.com/eidos-agi/docket.md
+  pypi: docket-md
+  install:
+    - pip install docket-md
+  also_known_as:
+    - ike-md
+    - ike
+
+display:
+  icon: clipboard
+  label: docket.md
+  section: tools
