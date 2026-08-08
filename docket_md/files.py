@@ -93,6 +93,7 @@ def write_markdown(file_path: str, frontmatter: dict[str, Any], content: str) ->
         sort_keys=False,
         allow_unicode=True,
         indent=2,  # base indent
+        width=4096,
     )
     # gray-matter (js-yaml) indents list items under their key with 2 spaces.
     # PyYAML puts them at the same level. Fix by adding 2-space indent to list items
@@ -391,11 +392,15 @@ def list_plans(project_root: str) -> list[ParsedFile]:
     d = _plan_dir(project_root)
     if not os.path.exists(d):
         return []
-    return [
-        read_markdown(os.path.join(d, f))
-        for f in sorted(os.listdir(d))
-        if f.endswith(".md")
-    ]
+    plans = []
+    for f in sorted(os.listdir(d)):
+        if not f.endswith(".md"):
+            continue
+        parsed = read_markdown(os.path.join(d, f))
+        plan_id = parsed.frontmatter.get("id")
+        if isinstance(plan_id, str) and plan_id.startswith("PLAN-"):
+            plans.append(parsed)
+    return plans
 
 
 def next_plan_id(project_root: str) -> str:

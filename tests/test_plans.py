@@ -1,5 +1,7 @@
 """Tests for plan entity type (files + tools)."""
 
+import os
+
 from docket_md.config import init_project, register_project
 from docket_md.files import (
     list_plans,
@@ -136,6 +138,32 @@ class TestPlanFiles:
         assert len(plans) == 2
         assert plans[0].frontmatter["id"] == "PLAN-0001"
         assert plans[1].frontmatter["id"] == "PLAN-0002"
+
+    def test_list_plans_ignores_non_plan_markdown(self, tmp_path):
+        project_root, pid = _setup_project(tmp_path)
+        plans_dir = os.path.join(project_root, ".docket", "plans")
+        os.makedirs(plans_dir, exist_ok=True)
+        with open(os.path.join(plans_dir, "TASK-0001.md"), "w") as f:
+            f.write("# Plan - TASK-0001\n\nThis is an execution-plan note, not a plan entity.\n")
+
+        result = plan_create(pid, "Launch Strategy")
+
+        assert "PLAN-0001" in result
+        plans = list_plans(project_root)
+        assert len(plans) == 1
+        assert plans[0].frontmatter["id"] == "PLAN-0001"
+
+    def test_plan_create_preserves_long_verification_item(self, tmp_path):
+        project_root, pid = _setup_project(tmp_path)
+        verification = [
+            "Plan separates GPT package, ChatGPT app, Anthropic connector, and internal plugin-store governance"
+        ]
+
+        plan_create(pid, "Long Verification", verification=verification)
+
+        plans = list_plans(project_root)
+        assert len(plans) == 1
+        assert plans[0].frontmatter["verification"] == verification
 
 
 # ---------------------------------------------------------------------------
