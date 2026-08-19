@@ -15,5 +15,10 @@ definition-of-done:
   - Listed in npm or PyPI
   - README install section updated
   - Wired into global MCP config via npx/uvx
+subtasks:
+  - TASK-0054
+  - TASK-0055
+  - TASK-0056
+  - TASK-0057
 ---
 Once distribution format is decided (TASK-0011), package ike.md for global install. If npm: publish @eidos-agi/ike-md, update install docs to use npx. If Python rewrite: port to FastMCP, publish to PyPI.

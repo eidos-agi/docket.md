@@ -12,5 +12,8 @@ tags:
 definition-of-done:
   - dist/ is never older than src/
   - 'Either: pre-push hook runs npm run build, or CI fails on stale dist'
+subtasks:
+  - TASK-0043
+  - TASK-0044
 ---
 test-forge caught that dist/ was stale (source newer than compiled output). npm run build must be run after any src/ change before pushing or publishing. Add a pre-push hook or CI step to enforce this.

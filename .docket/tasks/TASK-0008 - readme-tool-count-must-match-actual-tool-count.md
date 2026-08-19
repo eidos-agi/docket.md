@@ -11,5 +11,8 @@ tags:
 definition-of-done:
   - README tool count matches server tool count
   - Any new tool has a one-line description in README
+subtasks:
+  - TASK-0045
+  - TASK-0046
 ---
 README says 14 tools. Server registers 19. This will keep drifting as tools are added. README tool count (and list) must be updated whenever tools change — treat docs as part of the definition of done for any tool addition or removal.

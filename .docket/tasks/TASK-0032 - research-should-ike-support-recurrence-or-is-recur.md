@@ -14,6 +14,12 @@ acceptance-criteria:
   - 'If anti-pattern: document the scorecard-to-task pattern as the recommended alternative'
   - 'If feature: design the minimal recurrence spec that avoids the busywork trap'
   - Write up as an ADR in ike.md's visionlog
+subtasks:
+  - TASK-0074
+  - TASK-0075
+  - TASK-0076
+  - TASK-0077
+updated: '2026-08-17'
 ---
 Insight from the AIC CISO cockpit (2026-03-23): recurring tasks may be the wrong abstraction for solo operators with AI agents.
 
@@ -42,3 +48,5 @@ The recurring thing is the *check*, not the *task*. Tasks are born from failures
 5. What's the right boundary between Ike (execution) and VisionLog (obligations)?
 
 **Origin:** CISO cockpit session where `/ciso-score` found 31 days of missed scans. The SOP existed. The habit broke. A recurring task wouldn't have helped — it would have been ignored alongside the scans. The scorecard caught it and created a real task with teeth.
+
+research-md project initialized at research/recurrence. Decision not forced this turn.

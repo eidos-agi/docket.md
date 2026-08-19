@@ -11,5 +11,8 @@ tags:
 definition-of-done:
   - Task list reflects current reality
   - Any friction noticed during dogfood becomes a task
+subtasks:
+  - TASK-0049
+  - TASK-0050
 ---
 Every few sessions: open ike on itself, review the task list, close what's done, add what's missing. If ike is painful to use on itself, that's a signal — fix the pain. The tool must eat its own cooking.
