@@ -18,8 +18,13 @@ app = typer.Typer(
 @app.callback()
 def _root_callback() -> None:
     """Auto-register any docket project rooted at or above CWD before each command."""
+    from .. import config as _cfg
     from .._logic._session import boot_from_cwd
 
+    # Mark this process as a fresh CLI invocation: registrations persist to the
+    # on-disk CLI registry, and resolve_project falls back to it (MCP keeps its
+    # in-memory-only behavior).
+    _cfg.RUNTIME = "cli"
     boot_from_cwd()
 
 
